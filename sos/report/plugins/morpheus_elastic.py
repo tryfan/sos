@@ -62,7 +62,7 @@ class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         else:
             es_hosts = self.get_remote_hostnames_ports()
             for hp in es_hosts:
-                endpoint = str(hp['host']) + str(hp['port'])
+                endpoint = str(hp['host']) + ":" + str(hp['port'])
                 self.add_cmd_output([
                     "curl -X GET '%s/_cluster/settings?pretty'" % endpoint,
                     "curl -X GET '%s/_cluster/health?pretty'" % endpoint,
