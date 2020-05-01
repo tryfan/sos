@@ -19,6 +19,16 @@ class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         if not es_status_local['output']:
             self.es_embedded = False
 
+    def get_remote_hostnames_ports(self):
+        if os.path.isfile(self.morpheus_application_yml):
+            with open(self.morpheus_application_yml) as appyml:
+                appyml_data = yaml.load(appyml, Loader=yaml.FullLoader)
+
+        es_hosts = []
+        es_config = appyml_data['environments']['production']['elasticSearch']
+        es_host_detail = es_config['client']['hosts']
+        return es_host_detail
+
     def get_local_hostname_port(self):
         if os.path.isfile(self.morpheus_application_yml):
             with open(self.morpheus_application_yml) as appyml:
@@ -50,4 +60,12 @@ class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 "curl -X GET '%s/_cat/nodes?v'" % endpoint,
             ])
         else:
-            pass
+            es_hosts = self.get_remote_hostnames_ports()
+            for hp in es_hosts:
+                endpoint = str(hp['host']) + str(hp['port'])
+                self.add_cmd_output([
+                    "curl -X GET '%s/_cluster/settings?pretty'" % endpoint,
+                    "curl -X GET '%s/_cluster/health?pretty'" % endpoint,
+                    "curl -X GET '%s/_cluster/stats?pretty'" % endpoint,
+                    "curl -X GET '%s/_cat/nodes?v'" % endpoint,
+                ])
