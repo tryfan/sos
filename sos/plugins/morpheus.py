@@ -20,4 +20,8 @@ class Morpheus(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def postproc(self):
         self.do_file_sub("/opt/morpheus/conf/application.yml",
                          r"password: ([\"'])(?:(?=(\\?))\2.)*?\1",
-                         r"password: '*REDACTED*'")
+                         r"password: '***REDACTED***'")
+
+        self.do_file_sub("/etc/morpheus/morpheus.rb",
+                         r"password'] = ([\"'])(?:(?=(\\?))\2.)*?\1",
+                         r"password'] = '***REDACTED***'")
