@@ -2,6 +2,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import re
 import os
 import yaml
+import datetime
 
 
 class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
@@ -39,6 +40,24 @@ class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         port = es_config['client']['hosts'][0]['port']
         return str(hostname), str(port)
 
+    def get_morpheus_logs(self, endpoint):
+        json_options = """
+        { "sort": [ "ts" ], "query": { "match_all": {} } }
+        """
+        datelist = []
+        today = datetime.date.today()
+        for i in range(0, 6):
+            datedelta = datetime.timedelta(days=i)
+            moddate = today - datedelta
+            datelist.append("logs." + moddate.strftime("%Y%m%d"))
+
+        for day in datelist:
+            self.add_cmd_output(
+                "curl -s -X GET '%s/%s/_search?pretty&size=10000' -H 'Content-Type: application/json' -d '%s'"
+                % (endpoint, day, json_options),
+                suggest_filename="morpheus_" + day
+            )
+
     def setup(self):
         self.check_es_embedded()
         if self.es_embedded:
@@ -59,8 +78,11 @@ class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 "curl -X GET '%s/_cluster/stats?pretty'" % endpoint,
                 "curl -X GET '%s/_cat/nodes?v'" % endpoint,
             ])
+
+            self.get_morpheus_logs(endpoint)
         else:
             es_hosts = self.get_remote_hostnames_ports()
+            runonce = True
             for hp in es_hosts:
                 endpoint = str(hp['host']) + ":" + str(hp['port'])
                 self.add_cmd_output([
@@ -69,3 +91,6 @@ class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                     "curl -X GET '%s/_cluster/stats?pretty'" % endpoint,
                     "curl -X GET '%s/_cat/nodes?v'" % endpoint,
                 ])
+                if runonce:
+                    self.get_morpheus_logs(endpoint)
+                    runonce = False
