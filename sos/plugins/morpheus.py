@@ -16,3 +16,8 @@ class Morpheus(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output([
             'morpheus-ctl status'
         ])
+
+    def postproc(self):
+        self.do_file_sub("/opt/morpheus/conf/application.yml",
+                         r"password: '(\w)+',"
+                         r"password: '*REDACTED*'")
