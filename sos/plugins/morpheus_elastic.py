@@ -45,7 +45,7 @@ class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         { "sort": [ "ts" ], "query": { "match_all": {} } }
         """
         datelist = []
-        today = datetime.date.today()
+        today = datetime.datetime.today()
         since = self.get_option('since')
         if since is not None:
             daysback = today - since
