@@ -33,6 +33,7 @@ class MorpheusRabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
 
+        self.check_rmq_embedded()
         if self.rmq_embedded:
             original_env = os.environ
             envopts = {
