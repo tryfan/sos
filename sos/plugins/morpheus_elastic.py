@@ -48,10 +48,11 @@ class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         today = datetime.datetime.today()
         since = self.get_option('since')
         if since is not None:
-            daysback = today - since
+            delta = today - since
+            daysback = delta.days
         else:
             daysback = 6
-        for i in range(0, 6):
+        for i in range(0, daysback):
             datedelta = datetime.timedelta(days=i)
             moddate = today - datedelta
             datelist.append("logs." + moddate.strftime("%Y%m%d"))
