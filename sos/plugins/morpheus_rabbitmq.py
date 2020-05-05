@@ -62,7 +62,6 @@ class MorpheusRabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
             self.add_copy_spec([
                 "/opt/morpheus/embedded/rabbitmq/etc/*",
-                "/opt/morpheus/embedded/rabbitmq/etc/*",
                 "/etc/security/limits.d/",
                 "/etc/systemd/"
             ])

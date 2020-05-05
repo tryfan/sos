@@ -51,7 +51,7 @@ class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             delta = today - since
             daysback = delta.days
         else:
-            daysback = 6
+            daysback = 7
         for i in range(0, daysback + 1):
             datedelta = datetime.timedelta(days=i)
             moddate = today - datedelta
