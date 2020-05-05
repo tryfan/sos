@@ -52,7 +52,7 @@ class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             daysback = delta.days
         else:
             daysback = 6
-        for i in range(0, daysback):
+        for i in range(0, daysback + 1):
             datedelta = datetime.timedelta(days=i)
             moddate = today - datedelta
             datelist.append("logs." + moddate.strftime("%Y%m%d"))
