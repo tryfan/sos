@@ -46,6 +46,11 @@ class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         """
         datelist = []
         today = datetime.date.today()
+        since = self.get_option('since')
+        if since is not None:
+            daysback = today - since
+        else:
+            daysback = 6
         for i in range(0, 6):
             datedelta = datetime.timedelta(days=i)
             moddate = today - datedelta
@@ -65,6 +70,7 @@ class MorpheusElastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self.add_copy_spec(es_config_file)
 
             log_base_dir = "/var/log/morpheus/elasticsearch/"
+            self.add_copy_spec(es_config_file)
             self.add_copy_spec(log_base_dir + "morpheus_*.log")
             self.add_copy_spec(log_base_dir + "morpheus.log")
             self.add_copy_spec(log_base_dir + "current")

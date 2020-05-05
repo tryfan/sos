@@ -1,5 +1,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
+import socket
+import yaml
 from sos import utilities
 
 
@@ -17,6 +19,17 @@ class MorpheusRabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         rmq_status_local = self.collect_cmd_output("morpheus-ctl status rabbitmq")
         if not rmq_status_local['output']:
             self.rmq_embedded = False
+
+    def get_remote_hostnames_ports(self):
+        if os.path.isfile(self.morpheus_application_yml):
+            with open(self.morpheus_application_yml) as appyml:
+                appyml_data = yaml.load(appyml, Loader=yaml.FullLoader)
+
+        rmq_details = []
+        rmq_config = appyml_data['environments']['production']['rabbitmq']['connectionFactories']
+        for factory in rmq_config:
+            rmq_details.append(factory)
+        return rmq_details
 
     def setup(self):
 
@@ -55,3 +68,10 @@ class MorpheusRabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self.add_copy_spec([
                 "/var/log/morpheus/rabbitmq/*",
             ])
+
+        # else:
+        #     sockettest = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #     rmq_endpoints = self.get_remote_hostnames_ports()
+        #     if len(rmq_endpoints) == 1:
+        #         portcheck = (rmq_endpoints[0]['hostname'], "15672")
+        #         if portcheck is not 0:
