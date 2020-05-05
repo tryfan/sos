@@ -70,19 +70,18 @@ class MorpheusRabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 "/var/log/morpheus/rabbitmq/*",
             ])
 
-        else:
-            # sockettest = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            rmq_endpoints = self.get_remote_hostnames_ports()
-            localhosts = ['127.0.0.1', 'localhost']
-            if any(s in rmq_endpoints[0]['hostname'] for s in localhosts):
-                out = utilities.sos_get_command_output("rabbitmqctl report")
-                if out['status'] is not 0:
-                    for line in out['output']:
-                        if "mismatch" in line:
-                            quote_split = line.split('"')
-                            real_rabbitmq = quote_split[1]
-                    self.add_string_as_file(real_rabbitmq, "rabbit_nodename")
-                    out = utilities.sos_get_command_output("rabbitmqctl report",
-                                                           env={'RABBITMQ_NODENAME': real_rabbitmq})
-            self.add_string_as_file(out['output'], "rabbitmqctl_report_out")
-            self.add_string_as_file(out['status'], "rabbitmqctl_report_status")
+        # else:
+        #     # sockettest = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #     rmq_endpoints = self.get_remote_hostnames_ports()
+        #     localhosts = ['127.0.0.1', 'localhost']
+        #     if any(s in rmq_endpoints[0]['hostname'] for s in localhosts):
+        #         out = utilities.sos_get_command_output("rabbitmqctl report")
+        #         if out['status'] is not 0:
+        #             for line in out['output']:
+        #                 if "mismatch" in line:
+        #                     quote_split = line.split('"')
+        #                     real_rabbitmq = quote_split[1]
+        #             self.add_string_as_file(real_rabbitmq, "rabbit_nodename")
+        #             out = utilities.sos_get_command_output("rabbitmqctl report",
+        #                                                    env={'RABBITMQ_NODENAME': real_rabbitmq})
+        #     self.add_string_as_file(out['output'], "rabbitmqctl_report_out")
