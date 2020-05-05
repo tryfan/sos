@@ -80,6 +80,8 @@ class MorpheusRabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                         if "mismatch" in line:
                             quote_split = line.split('"')
                             real_rabbitmq = quote_split[1]
+                    self.add_string_as_file(real_rabbitmq, "rabbit_nodename")
                     out = utilities.sos_get_command_output("rabbitmqctl report",
                                                            env={'RABBITMQ_NODENAME': real_rabbitmq})
             self.add_string_as_file(out['output'], "rabbitmqctl_report_out")
+            self.add_string_as_file(out['status'], "rabbitmqctl_report_status")
