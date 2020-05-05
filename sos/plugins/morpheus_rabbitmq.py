@@ -1,6 +1,6 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
-import socket
+# import socket
 import yaml
 from sos import utilities
 
@@ -69,9 +69,17 @@ class MorpheusRabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 "/var/log/morpheus/rabbitmq/*",
             ])
 
-        # else:
-        #     sockettest = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #     rmq_endpoints = self.get_remote_hostnames_ports()
-        #     if len(rmq_endpoints) == 1:
-        #         portcheck = (rmq_endpoints[0]['hostname'], "15672")
-        #         if portcheck is not 0:
+        else:
+            # sockettest = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            rmq_endpoints = self.get_remote_hostnames_ports()
+            localhosts = ['127.0.0.1', 'localhost']
+            if any(s in rmq_endpoints[0]['hostname'] for s in localhosts):
+                out = utilities.sos_get_command_output("rabbitmqctl report")
+                if out['status'] is not 0:
+                    for line in out['output']:
+                        if "mismatch" in line:
+                            quote_split = line.split('"')
+                            real_rabbitmq = quote_split[1]
+                    out = utilities.sos_get_command_output("rabbitmqctl report",
+                                                           env={'RABBITMQ_NODENAME': real_rabbitmq})
+            self.add_string_as_file(out['output'], "rabbitmqctl_report_out")
